@@ -212,19 +212,22 @@ def step1_compute_original_legacy(path, K=3, max_M=500):
     # =========================================
     # Duyệt M = K, 2K, 3K, ... <= max_M
     # Tại mỗi M, ta tính Mdg(M).
-    # - Nếu đây là lần đầu tiên (best_Mdg_value is None) → gán luôn.
-    # - Hoặc nếu Mdg(M) < best_Mdg_value hiện tại → cập nhật best_M, best_Mdg.
-    # - Nếu Mdg(M) == best_Mdg_value hiện tại → KHÔNG cập nhật
-    #   (tức là giữ lại M đầu tiên đạt giá trị nhỏ nhất đó).
+    # Theo bài báo: "If there exists a value Mi such that Mdg(Mi) < |Umin|,
+    # then set the initial value of M to Mi."
+    # → Dừng ngay khi tìm được M đầu tiên thỏa Mdg(M) < |Umin|
     while current_grid_size_M <= max_M:
         current_Mdg_value = compute_Mdg_legacy(points, current_grid_size_M)
         print(
             f"  M={current_grid_size_M:4d}  \t Mdg={current_Mdg_value:.3f}"
         )
 
-        # Cập nhật nghiệm tốt nhất nếu:
-        #  - Chưa có nghiệm nào (best_Mdg_value is None), hoặc
-        #  - Vừa tìm được M với Mdg nhỏ hơn rõ rệt.
+        # Theo bài báo: Dừng ngay khi Mdg(M) < |Umin|
+        if current_Mdg_value < Umin:
+            best_grid_size_M = current_grid_size_M
+            best_Mdg_value = current_Mdg_value
+            break  # Dừng vòng lặp - đã tìm được M thỏa điều kiện
+        
+        # Nếu chưa thỏa, lưu lại M hiện tại (fallback nếu không có M nào thỏa)
         if best_Mdg_value is None or current_Mdg_value < best_Mdg_value:
             best_grid_size_M = current_grid_size_M
             best_Mdg_value = current_Mdg_value

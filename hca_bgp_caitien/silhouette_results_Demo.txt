@@ -1,23 +1,20 @@
 [Step 6] CHỈ SỐ SILHOUETTE
-Silhouette trung bình toàn bộ: 0.472548
+Silhouette trung bình toàn bộ: 0.639976
 
 Silhouette trung bình theo từng cluster:
-- Cluster 0: silhouette_mean=0.408669, so_diem=2
-- Cluster 1: silhouette_mean=0.398522, so_diem=2
-- Cluster 2: silhouette_mean=0.165964, so_diem=5
-- Cluster 3: silhouette_mean=0.259933, so_diem=4
-- Cluster 5: silhouette_mean=0.852431, so_diem=7
+- Cluster 0: silhouette_mean=0.888160, so_diem=7
+- Cluster 1: silhouette_mean=0.506339, so_diem=13
 
 Top các điểm có Silhouette thấp nhất (khó phân cụm):
-+ Diem 2: x=2.000000, y=3.000000, cluster=2, silhouette=-0.108194
-+ Diem 16: x=18.000000, y=3.000000, cluster=3, silhouette=0.057191
-+ Diem 17: x=19.000000, y=3.000000, cluster=3, silhouette=0.057191
-+ Diem 3: x=3.000000, y=3.000000, cluster=2, silhouette=0.085786
-+ Diem 6: x=4.000000, y=3.000000, cluster=2, silhouette=0.089073
-+ Diem 4: x=2.000000, y=4.000000, cluster=2, silhouette=0.333075
-+ Diem 1: x=3.000000, y=2.000000, cluster=0, silhouette=0.379998
-+ Diem 14: x=18.000000, y=2.000000, cluster=1, silhouette=0.398522
-+ Diem 15: x=19.000000, y=2.000000, cluster=1, silhouette=0.398522
-+ Diem 5: x=3.000000, y=4.000000, cluster=2, silhouette=0.430081
++ Diem 7: x=10.000000, y=10.000000, cluster=1, silhouette=0.374075
++ Diem 9: x=10.000000, y=11.000000, cluster=1, silhouette=0.391276
++ Diem 13: x=11.000000, y=12.000000, cluster=1, silhouette=0.451250
++ Diem 8: x=11.000000, y=10.000000, cluster=1, silhouette=0.467117
++ Diem 10: x=11.000000, y=11.000000, cluster=1, silhouette=0.474732
++ Diem 12: x=12.000000, y=11.000000, cluster=1, silhouette=0.517921
++ Diem 11: x=12.000000, y=10.000000, cluster=1, silhouette=0.518397
++ Diem 14: x=18.000000, y=2.000000, cluster=1, silhouette=0.532384
++ Diem 15: x=19.000000, y=2.000000, cluster=1, silhouette=0.537697
++ Diem 16: x=18.000000, y=3.000000, cluster=1, silhouette=0.570251
 
-Davies-Bouldin = 0.731607
+Davies-Bouldin = 0.511113

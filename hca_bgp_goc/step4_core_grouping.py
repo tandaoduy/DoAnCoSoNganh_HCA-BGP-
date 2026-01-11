@@ -52,47 +52,69 @@ def are_adjacent(g1, g2):
 # Gom các core-grid thành các core-cluster (Step 4)
 # ------------------------------------------------------
 def build_core_clusters(grid_list, dim):
+    """
+    Algorithm 1: denseUnitsToClusters (theo bài báo)
+    
+    Input: denseUnitsND (core_grids), dataset
+    Output: clusters - danh sách các core-cluster
+    """
     core_grids = [g for g in grid_list if g["is_core"]]
-    N = len(core_grids)
-
-    # adjacency matrix: 1 nếu hai core-grid được xem là liền kề
-    # - Nếu có chỉ số (ix, iy) -> dùng are_adjacent theo bài báo (ô kề nhau)
-    # - Nếu KHÔNG có ix/iy (ví dụ grid từ lưới đệ quy) -> fallback dùng grid_distance < 1.0
-    adj = [[0] * N for _ in range(N)]
-
-    for i in range(N):
-        for j in range(i + 1, N):
-            g1 = core_grids[i]
-            g2 = core_grids[j]
-            if "ix" in g1 and "iy" in g1 and "ix" in g2 and "iy" in g2:
-                # lưới tĩnh Step 2: adjacency theo ô kề (ix, iy)
-                if are_adjacent(g1, g2):
-                    adj[i][j] = adj[j][i] = 1
-            else:
-                # lưới đệ quy hoặc format khác: dùng khoảng cách chuẩn hoá < 1
-                d = grid_distance(g1, g2, dim)
-                if d < 1.0:
-                    adj[i][j] = adj[j][i] = 1
-
-    # BFS grouping
-    visited = [False] * N
+    L = len(core_grids)  # Line 1: L ← len(denseUnitsND)
+    
+    if L == 0:
+        return []
+    
+    # Line 2: initialization C[0:L], C[] ← -1
+    C = [-1] * L  # Cluster label cho mỗi dense grid
+    
+    # Line 3: initialization EK ← -1
+    EK = -1  # Cluster ID hiện tại
+    
+    # Line 5: for i:0 to L
+    for i in range(L):
+        # Line 6: if C[i] == -1 then
+        if C[i] == -1:
+            # Line 7: EK ← EK+1, C[i] ← EK
+            EK = EK + 1
+            C[i] = EK
+            
+            # Line 8: initialization Current []
+            Current = []
+            
+            # Line 9-12: for j:0 to L, tìm các grid kề với grid i
+            for j in range(L):
+                if C[j] == -1:
+                    # Line 10: if C[j] == -1 and distance(i,j) <= 1
+                    d = grid_distance(core_grids[i], core_grids[j], dim)
+                    if d <= 1.0:  # adjacent if distance <= 1 (Algorithm 1, line 10)
+                        # Line 11: C[j] ← EK
+                        C[j] = EK
+                        # Line 12: add C[j] to Current
+                        Current.append(j)
+            
+            # Line 13-17: for y in Current, lan truyền tìm thêm grid kề
+            idx = 0
+            while idx < len(Current):
+                y = Current[idx]
+                # Line 14: for s:0 to L
+                for s in range(L):
+                    # Line 15: if C[s] == -1 and distance(y,s) <= 1
+                    if C[s] == -1:
+                        d = grid_distance(core_grids[y], core_grids[s], dim)
+                        if d <= 1.0:
+                            # Line 16: C[s] ← EK
+                            C[s] = EK
+                            # Line 17: add C[s] to Current
+                            Current.append(s)
+                idx += 1
+    
+    # Tạo danh sách clusters từ C
     clusters = []
-    for i in range(N):
-        if not visited[i]:
-            q = deque([i])
-            visited[i] = True
-            comp = [i]
-
-            while q:
-                u = q.popleft()
-                for v in range(N):
-                    if adj[u][v] == 1 and not visited[v]:
-                        visited[v] = True
-                        q.append(v)
-                        comp.append(v)
-
-            clusters.append([core_grids[idx] for idx in comp])
-
+    for cluster_id in range(EK + 1):
+        cluster = [core_grids[i] for i in range(L) if C[i] == cluster_id]
+        if cluster:
+            clusters.append(cluster)
+    
     return clusters
 
 
@@ -322,39 +344,75 @@ def print_adjacency_formulas_detail(grid_list, dim=2):
         print()
     
     # =============================================
-    # PHẦN 5: GOM CLUSTER BẰNG BFS
+    # PHẦN 5: GOM CLUSTER THEO ALGORITHM 1 (denseUnitsToClusters)
     # =============================================
     print("\n" + "─"*100)
-    print("📊 GOM CÁC CORE GRID THÀNH CORE-CLUSTERS (BFS)")
+    print("📊 GOM CÁC CORE GRID THÀNH CORE-CLUSTERS (Algorithm 1)")
     print("─"*100)
     
-    visited = [False] * N
-    clusters = []
+    print("\n▶ ALGORITHM 1: denseUnitsToClusters")
+    print("   Input: denseUnitsND (core grids), dataset")
+    print("   Output: clusters - danh sách các core-cluster")
     
-    for i in range(N):
-        if not visited[i]:
-            q = deque([i])
-            visited[i] = True
-            comp = [i]
+    # Line 1: L ← len(denseUnitsND)
+    L = N
+    print(f"\n   Line 1: L ← {L}")
+    
+    # Line 2: initialization C[0:L], C[] ← -1
+    C = [-1] * L
+    print(f"   Line 2: C[] ← [-1] * {L}")
+    
+    # Line 3: initialization EK ← -1
+    EK = -1
+    print(f"   Line 3: EK ← -1")
+    
+    print(f"\n▶ TIẾN HÀNH GOM CÁC CORE GRID:")
+    
+    # Line 5: for i:0 to L
+    for i in range(L):
+        # Line 6: if C[i] == -1 then
+        if C[i] == -1:
+            # Line 7: EK ← EK+1, C[i] ← EK
+            EK = EK + 1
+            C[i] = EK
+            print(f"\n   🔹 Grid {i} chưa có cluster → Tạo cluster mới EK={EK}")
             
-            print(f"\n   🔹 Bắt đầu BFS từ Grid {i}:")
-            print(f"      Queue: [{i}]")
+            # Line 8: initialization Current []
+            Current = []
             
-            while q:
-                u = q.popleft()
-                neighbors = []
-                for v in range(N):
-                    if adj[u][v] == 1 and not visited[v]:
-                        visited[v] = True
-                        q.append(v)
-                        comp.append(v)
-                        neighbors.append(v)
-                
-                if neighbors:
-                    print(f"      Từ Grid {u} → Kề với: {neighbors}")
+            # Line 9-12: tìm các grid kề với grid i
+            for j in range(L):
+                if C[j] == -1:
+                    d = grid_distance(core_grids[i], core_grids[j], dim)
+                    if d <= 1.0:
+                        C[j] = EK
+                        Current.append(j)
+                        print(f"      → Grid {j} kề với Grid {i} (distance={d:.4f} <= 1) → C[{j}]={EK}")
             
-            print(f"      → Kết quả: Cluster gồm các Grid {comp}")
-            clusters.append([core_grids[idx] for idx in comp])
+            # Line 13-17: lan truyền tìm thêm grid kề
+            idx = 0
+            while idx < len(Current):
+                y = Current[idx]
+                for s in range(L):
+                    if C[s] == -1:
+                        d = grid_distance(core_grids[y], core_grids[s], dim)
+                        if d <= 1.0:
+                            C[s] = EK
+                            Current.append(s)
+                            print(f"      → Grid {s} kề với Grid {y} (distance={d:.4f} <= 1) → C[{s}]={EK}")
+                idx += 1
+    
+    # Tạo danh sách clusters từ C
+    clusters = []
+    for cluster_id in range(EK + 1):
+        cluster_members = [i for i in range(L) if C[i] == cluster_id]
+        clusters.append([core_grids[i] for i in cluster_members])
+    
+    print(f"\n▶ KẾT QUẢ:")
+    print(f"   C[] = {C}")
+    for ci, cluster in enumerate(clusters):
+        members = [i for i in range(L) if C[i] == ci]
+        print(f"   → Cluster {ci}: gồm các Grid {members}")
     
     # =============================================
     # PHẦN 6: BẢNG TỔNG KẾT

@@ -50,49 +50,386 @@ def are_adjacent(g1, g2):
 
 # ------------------------------------------------------
 # Gom các core-grid thành các core-cluster (Step 4)
+# Phiên bản BFS cải tiến - tối ưu hơn Algorithm 1 gốc
 # ------------------------------------------------------
 def build_core_clusters(grid_list, dim):
+    """
+    Gom các core-grid kề nhau thành core-cluster sử dụng BFS.
+    
+    Đây là phiên bản cải tiến của Algorithm 1 (denseUnitsToClusters) trong bài báo:
+    - Xây dựng ma trận kề trước (tránh tính lại nhiều lần)
+    - Sử dụng deque với popleft() O(1) thay vì duyệt bằng index
+    - Giải phóng bộ nhớ khi duyệt xong mỗi phần tử
+    
+    Input: grid_list - danh sách các ô lưới (có thuộc tính is_core)
+           dim - số chiều (thường là 2 cho dữ liệu 2D)
+    Output: clusters - danh sách các core-cluster
+    """
     core_grids = [g for g in grid_list if g["is_core"]]
     N = len(core_grids)
+    
+    if N == 0:
+        return []
+    
+    # Bước 1: Xây dựng ma trận kề
+    # adj[i][j] = True nếu core_grids[i] và core_grids[j] kề nhau
+    # Theo Definition 10: distance(a,b)_N <= 1 thì kề nhau
+    adj = [[False] * N for _ in range(N)]
+    for i in range(N):
+        for j in range(i + 1, N):
+            d = grid_distance(core_grids[i], core_grids[j], dim)
+            if d <= 1.0:
+                adj[i][j] = adj[j][i] = True
+    
+    # Bước 2: BFS grouping - gom các core-grid kề nhau vào cùng cluster
+    visited = [False] * N
+    clusters = []
+    
+    for i in range(N):
+        if not visited[i]:
+            # Khởi tạo BFS từ node i
+            queue = deque([i])
+            visited[i] = True
+            component = [i]
+            
+            # Duyệt BFS - tìm tất cả các node kề (trực tiếp và gián tiếp)
+            while queue:
+                u = queue.popleft()  # O(1) - lấy và xóa phần tử đầu
+                for v in range(N):
+                    if adj[u][v] and not visited[v]:
+                        visited[v] = True
+                        queue.append(v)
+                        component.append(v)
+            
+            # Tạo cluster từ component
+            cluster = [core_grids[idx] for idx in component]
+            clusters.append(cluster)
+    
+    return clusters
 
-    # adjacency matrix: 1 nếu hai core-grid được xem là liền kề
-    # - Nếu có chỉ số (ix, iy) -> dùng are_adjacent theo bài báo (ô kề nhau)
-    # - Nếu KHÔNG có ix/iy (ví dụ grid từ lưới đệ quy) -> fallback dùng grid_distance < 1.0
+
+# =============================
+# IN CHI TIẾT CÔNG THỨC TÍNH KHOẢNG CÁCH KỀ (STEP 4)
+# =============================
+def print_adjacency_formulas_detail(grid_list, dim=2):
+    """
+    In chi tiết công thức tính khoảng cách kề giữa các core-grid
+    theo Definition 9 và Definition 10 trong paper.
+    """
+    print("\n" + "="*100)
+    print("CHI TIẾT CÔNG THỨC TÍNH KHOẢNG CÁCH KỀ GIỮA CÁC CORE-GRID (STEP 4)")
+    print("="*100)
+    
+    # =============================================
+    # PHẦN 1: CÔNG THỨC ĐỊNH NGHĨA
+    # =============================================
+    print("\n" + "─"*100)
+    print("📐 DEFINITION 9: KHOẢNG CÁCH 1 CHIỀU (Axis Distance)")
+    print("─"*100)
+    print("\n▶ CÔNG THỨC:")
+    print("   distance_i(a, b) = min(|maxA - maxB|, |minA - minB|) / min(lenA, lenB)")
+    print("\n   Trong đó:")
+    print("   • a, b: hai ô lưới (grid)")
+    print("   • maxA, minA: biên lớn nhất/nhỏ nhất của ô a theo chiều i")
+    print("   • maxB, minB: biên lớn nhất/nhỏ nhất của ô b theo chiều i")
+    print("   • lenA = maxA - minA (độ rộng ô a)")
+    print("   • lenB = maxB - minB (độ rộng ô b)")
+    
+    print("\n" + "─"*100)
+    print("📐 DEFINITION 10: KHOẢNG CÁCH N CHIỀU (Grid Distance)")
+    print("─"*100)
+    print("\n▶ CÔNG THỨC:")
+    print("   distance(a, b)_N = Σᵢ distance_i(a, b)")
+    print("\n   → Tổng khoảng cách theo từng chiều (với dữ liệu 2D: i = x, y)")
+    
+    print("\n" + "─"*100)
+    print("📐 ĐIỀU KIỆN KỀ NHAU (Adjacency Condition)")
+    print("─"*100)
+    print("\n▶ HAI Ô ĐƯỢC COI LÀ KỀ NHAU NẾU:")
+    print("   • Lưới tĩnh (có ix, iy): |ix₁ - ix₂| ≤ 1 VÀ |iy₁ - iy₂| ≤ 1")
+    print("   • Lưới đệ quy (không có ix, iy): distance(a, b)_N < 1.0")
+    
+    # =============================================
+    # PHẦN 2: LỌC CORE GRIDS
+    # =============================================
+    core_grids = [g for g in grid_list if g.get("is_core", False)]
+    N = len(core_grids)
+    
+    print("\n" + "─"*100)
+    print("📊 DANH SÁCH CORE GRIDS")
+    print("─"*100)
+    print(f"\n▶ Tổng số grid: {len(grid_list)}")
+    print(f"▶ Số Core Grid: {N}")
+    
+    if N == 0:
+        print("\n   ⚠ Không có Core Grid nào để tính khoảng cách!")
+        return []
+    
+    print(f"\n{'#':<4} {'(ix,iy)':<12} {'X range':<25} {'Y range':<25} {'Điểm':<6}")
+    print("-"*80)
+    for i, g in enumerate(core_grids):
+        ix = g.get("ix", "-")
+        iy = g.get("iy", "-")
+        x_range = f"[{g['min_bin'][0]:.4f}, {g['max_bin'][0]:.4f})"
+        y_range = f"[{g['min_bin'][1]:.4f}, {g['max_bin'][1]:.4f})"
+        n_pts = len(g.get("points", []))
+        print(f"{i:<4} ({ix},{iy}){'':<5} {x_range:<25} {y_range:<25} {n_pts:<6}")
+    
+    # =============================================
+    # PHẦN 3: TÍNH KHOẢNG CÁCH CHI TIẾT
+    # =============================================
+    print("\n" + "─"*100)
+    print("📊 TÍNH KHOẢNG CÁCH GIỮA CÁC CẶP CORE GRID")
+    print("─"*100)
+    
+    if N < 2:
+        print("\n   ⚠ Chỉ có 1 Core Grid, không tính khoảng cách cặp!")
+        return [[core_grids[0]]]
+    
+    # Ma trận kề
     adj = [[0] * N for _ in range(N)]
-
+    
+    print(f"\n▶ TÍNH CHI TIẾT CHO TỪNG CẶP:")
+    
+    pair_count = 0
     for i in range(N):
         for j in range(i + 1, N):
             g1 = core_grids[i]
             g2 = core_grids[j]
-            if "ix" in g1 and "iy" in g1 and "ix" in g2 and "iy" in g2:
-                # lưới tĩnh Step 2: adjacency theo ô kề (ix, iy)
-                if are_adjacent(g1, g2):
+            pair_count += 1
+            
+            # Lấy thông tin
+            ix1, iy1 = g1.get("ix", None), g1.get("iy", None)
+            ix2, iy2 = g2.get("ix", None), g2.get("iy", None)
+            
+            print(f"\n   ┌───────────────────────────────────────────────────────────────────────────────┐")
+            print(f"   │ CẶP {pair_count}: Grid {i} - Grid {j}")
+            print(f"   └───────────────────────────────────────────────────────────────────────────────┘")
+            
+            # Grid 1 info
+            print(f"\n   Grid {i}:")
+            if ix1 is not None:
+                print(f"   • (ix, iy) = ({ix1}, {iy1})")
+            print(f"   • X: [{g1['min_bin'][0]:.4f}, {g1['max_bin'][0]:.4f}]")
+            print(f"   • Y: [{g1['min_bin'][1]:.4f}, {g1['max_bin'][1]:.4f}]")
+            
+            # Grid 2 info
+            print(f"\n   Grid {j}:")
+            if ix2 is not None:
+                print(f"   • (ix, iy) = ({ix2}, {iy2})")
+            print(f"   • X: [{g2['min_bin'][0]:.4f}, {g2['max_bin'][0]:.4f}]")
+            print(f"   • Y: [{g2['min_bin'][1]:.4f}, {g2['max_bin'][1]:.4f}]")
+            
+            # Kiểm tra phương pháp
+            if ix1 is not None and iy1 is not None and ix2 is not None and iy2 is not None:
+                # Phương pháp 1: Lưới tĩnh
+                print(f"\n   📌 PHƯƠNG PHÁP: Kiểm tra chỉ số (ix, iy)")
+                diff_ix = abs(ix1 - ix2)
+                diff_iy = abs(iy1 - iy2)
+                print(f"   • |ix₁ - ix₂| = |{ix1} - {ix2}| = {diff_ix}")
+                print(f"   • |iy₁ - iy₂| = |{iy1} - {iy2}| = {diff_iy}")
+                print(f"   • Điều kiện kề: |Δix| ≤ 1 VÀ |Δiy| ≤ 1")
+                
+                is_adj = (diff_ix <= 1 and diff_iy <= 1)
+                if is_adj:
                     adj[i][j] = adj[j][i] = 1
+                    print(f"\n   ═══════════════════════════════════════════════════════════════")
+                    print(f"   ✅ KẾT LUẬN: KỀ NHAU ({diff_ix} ≤ 1 VÀ {diff_iy} ≤ 1)")
+                    print(f"   ═══════════════════════════════════════════════════════════════")
+                else:
+                    print(f"\n   ═══════════════════════════════════════════════════════════════")
+                    print(f"   ❌ KẾT LUẬN: KHÔNG KỀ NHAU")
+                    print(f"   ═══════════════════════════════════════════════════════════════")
             else:
-                # lưới đệ quy hoặc format khác: dùng khoảng cách chuẩn hoá < 1
-                d = grid_distance(g1, g2, dim)
-                if d < 1.0:
+                # Phương pháp 2: Lưới đệ quy - dùng Definition 9, 10
+                print(f"\n   📌 PHƯƠNG PHÁP: Tính khoảng cách theo Definition 9, 10")
+                
+                # Tính distance_x (chiều X)
+                a_min_x, a_max_x = g1['min_bin'][0], g1['max_bin'][0]
+                b_min_x, b_max_x = g2['min_bin'][0], g2['max_bin'][0]
+                len_a_x = abs(a_max_x - a_min_x)
+                len_b_x = abs(b_max_x - b_min_x)
+                
+                print(f"\n   ▶ distance_x (Definition 9 - chiều X):")
+                print(f"      Grid {i}: minX = {a_min_x:.4f}, maxX = {a_max_x:.4f}, lenX = {len_a_x:.4f}")
+                print(f"      Grid {j}: minX = {b_min_x:.4f}, maxX = {b_max_x:.4f}, lenX = {len_b_x:.4f}")
+                
+                denom_x = min(len_a_x, len_b_x)
+                if denom_x > 0:
+                    diff_max_x = abs(a_max_x - b_max_x)
+                    diff_min_x = abs(a_min_x - b_min_x)
+                    num_x = min(diff_max_x, diff_min_x)
+                    d_x = num_x / denom_x
+                    print(f"      |maxA - maxB| = |{a_max_x:.4f} - {b_max_x:.4f}| = {diff_max_x:.4f}")
+                    print(f"      |minA - minB| = |{a_min_x:.4f} - {b_min_x:.4f}| = {diff_min_x:.4f}")
+                    print(f"      min(lenA, lenB) = min({len_a_x:.4f}, {len_b_x:.4f}) = {denom_x:.4f}")
+                    print(f"      distance_x = min({diff_max_x:.4f}, {diff_min_x:.4f}) / {denom_x:.4f}")
+                    print(f"                = {num_x:.4f} / {denom_x:.4f} = {d_x:.6f}")
+                else:
+                    d_x = 0.0
+                    print(f"      min(lenA, lenB) = 0 → distance_x = 0")
+                
+                # Tính distance_y (chiều Y)
+                a_min_y, a_max_y = g1['min_bin'][1], g1['max_bin'][1]
+                b_min_y, b_max_y = g2['min_bin'][1], g2['max_bin'][1]
+                len_a_y = abs(a_max_y - a_min_y)
+                len_b_y = abs(b_max_y - b_min_y)
+                
+                print(f"\n   ▶ distance_y (Definition 9 - chiều Y):")
+                print(f"      Grid {i}: minY = {a_min_y:.4f}, maxY = {a_max_y:.4f}, lenY = {len_a_y:.4f}")
+                print(f"      Grid {j}: minY = {b_min_y:.4f}, maxY = {b_max_y:.4f}, lenY = {len_b_y:.4f}")
+                
+                denom_y = min(len_a_y, len_b_y)
+                if denom_y > 0:
+                    diff_max_y = abs(a_max_y - b_max_y)
+                    diff_min_y = abs(a_min_y - b_min_y)
+                    num_y = min(diff_max_y, diff_min_y)
+                    d_y = num_y / denom_y
+                    print(f"      |maxA - maxB| = |{a_max_y:.4f} - {b_max_y:.4f}| = {diff_max_y:.4f}")
+                    print(f"      |minA - minB| = |{a_min_y:.4f} - {b_min_y:.4f}| = {diff_min_y:.4f}")
+                    print(f"      min(lenA, lenB) = min({len_a_y:.4f}, {len_b_y:.4f}) = {denom_y:.4f}")
+                    print(f"      distance_y = min({diff_max_y:.4f}, {diff_min_y:.4f}) / {denom_y:.4f}")
+                    print(f"                = {num_y:.4f} / {denom_y:.4f} = {d_y:.6f}")
+                else:
+                    d_y = 0.0
+                    print(f"      min(lenA, lenB) = 0 → distance_y = 0")
+                
+                # Tổng khoảng cách (Definition 10)
+                total_d = d_x + d_y
+                print(f"\n   ▶ distance_2D (Definition 10):")
+                print(f"      distance = distance_x + distance_y")
+                print(f"               = {d_x:.6f} + {d_y:.6f}")
+                print(f"               = {total_d:.6f}")
+                
+                is_adj = (total_d < 1.0)
+                if is_adj:
                     adj[i][j] = adj[j][i] = 1
-
-    # BFS grouping
-    visited = [False] * N
-    clusters = []
+                    print(f"\n   ═══════════════════════════════════════════════════════════════")
+                    print(f"   ✅ KẾT LUẬN: KỀ NHAU (distance = {total_d:.6f} < 1.0)")
+                    print(f"   ═══════════════════════════════════════════════════════════════")
+                else:
+                    print(f"\n   ═══════════════════════════════════════════════════════════════")
+                    print(f"   ❌ KẾT LUẬN: KHÔNG KỀ NHAU (distance = {total_d:.6f} >= 1.0)")
+                    print(f"   ═══════════════════════════════════════════════════════════════")
+    
+    # =============================================
+    # PHẦN 4: MA TRẬN KỀ
+    # =============================================
+    print("\n" + "─"*100)
+    print("📊 MA TRẬN KỀ (Adjacency Matrix)")
+    print("─"*100)
+    
+    print("\n      ", end="")
+    for j in range(N):
+        print(f"G{j:<3}", end="")
+    print()
+    
     for i in range(N):
-        if not visited[i]:
-            q = deque([i])
-            visited[i] = True
-            comp = [i]
-
-            while q:
-                u = q.popleft()
-                for v in range(N):
-                    if adj[u][v] == 1 and not visited[v]:
-                        visited[v] = True
-                        q.append(v)
-                        comp.append(v)
-
-            clusters.append([core_grids[idx] for idx in comp])
-
+        print(f"   G{i} ", end="")
+        for j in range(N):
+            if i == j:
+                print("  - ", end="")
+            else:
+                print(f"  {adj[i][j]} ", end="")
+        print()
+    
+    # =============================================
+    # PHẦN 5: GOM CLUSTER THEO ALGORITHM 1 (denseUnitsToClusters)
+    # =============================================
+    print("\n" + "─"*100)
+    print("📊 GOM CÁC CORE GRID THÀNH CORE-CLUSTERS (Algorithm 1)")
+    print("─"*100)
+    
+    print("\n▶ ALGORITHM 1: denseUnitsToClusters")
+    print("   Input: denseUnitsND (core grids), dataset")
+    print("   Output: clusters - danh sách các core-cluster")
+    
+    # Line 1: L ← len(denseUnitsND)
+    L = N
+    print(f"\n   Line 1: L ← {L}")
+    
+    # Line 2: initialization C[0:L], C[] ← -1
+    C = [-1] * L
+    print(f"   Line 2: C[] ← [-1] * {L}")
+    
+    # Line 3: initialization EK ← -1
+    EK = -1
+    print(f"   Line 3: EK ← -1")
+    
+    print(f"\n▶ TIẾN HÀNH GOM CÁC CORE GRID:")
+    
+    # Line 5: for i:0 to L
+    for i in range(L):
+        # Line 6: if C[i] == -1 then
+        if C[i] == -1:
+            # Line 7: EK ← EK+1, C[i] ← EK
+            EK = EK + 1
+            C[i] = EK
+            print(f"\n   🔹 Grid {i} chưa có cluster → Tạo cluster mới EK={EK}")
+            
+            # Line 8: initialization Current []
+            Current = []
+            
+            # Line 9-12: tìm các grid kề với grid i
+            for j in range(L):
+                if C[j] == -1:
+                    d = grid_distance(core_grids[i], core_grids[j], dim)
+                    if d <= 1.0:
+                        C[j] = EK
+                        Current.append(j)
+                        print(f"      → Grid {j} kề với Grid {i} (distance={d:.4f} <= 1) → C[{j}]={EK}")
+            
+            # Line 13-17: lan truyền tìm thêm grid kề
+            idx = 0
+            while idx < len(Current):
+                y = Current[idx]
+                for s in range(L):
+                    if C[s] == -1:
+                        d = grid_distance(core_grids[y], core_grids[s], dim)
+                        if d <= 1.0:
+                            C[s] = EK
+                            Current.append(s)
+                            print(f"      → Grid {s} kề với Grid {y} (distance={d:.4f} <= 1) → C[{s}]={EK}")
+                idx += 1
+    
+    # Tạo danh sách clusters từ C
+    clusters = []
+    for cluster_id in range(EK + 1):
+        cluster_members = [i for i in range(L) if C[i] == cluster_id]
+        clusters.append([core_grids[i] for i in cluster_members])
+    
+    print(f"\n▶ KẾT QUẢ:")
+    print(f"   C[] = {C}")
+    for ci, cluster in enumerate(clusters):
+        members = [i for i in range(L) if C[i] == ci]
+        print(f"   → Cluster {ci}: gồm các Grid {members}")
+    
+    # =============================================
+    # PHẦN 6: BẢNG TỔNG KẾT
+    # =============================================
+    print("\n" + "="*100)
+    print("BẢNG TỔNG KẾT CORE-CLUSTERS")
+    print("="*100)
+    
+    print(f"\n▶ Tổng số Core Grid: {N}")
+    print(f"▶ Tổng số Core-Cluster: {len(clusters)}")
+    
+    print(f"\n{'Cluster':<10} {'Số Grid':<10} {'Danh sách Grid':<40} {'Tổng điểm':<10}")
+    print("-"*75)
+    
+    for ci, cluster in enumerate(clusters):
+        grid_ids = []
+        total_pts = 0
+        for g in cluster:
+            idx = core_grids.index(g)
+            grid_ids.append(idx)
+            total_pts += len(g.get("points", []))
+        
+        grid_str = ", ".join([f"G{idx}" for idx in grid_ids])
+        print(f"{ci:<10} {len(cluster):<10} {grid_str:<40} {total_pts:<10}")
+    
+    print("-"*75)
+    
     return clusters
 
 
@@ -126,7 +463,7 @@ def compute_initial_centroids(core_clusters):
 # ------------------------------------------------------
 # Vẽ lưới core-grid và các core-cluster (minh hoạ Step 4)
 # ------------------------------------------------------
-def plot_core_groups(points, grid_list, core_clusters, title_prefix="Step 4: Core Grids & Clusters"):
+def plot_core_groups(points, grid_list, core_clusters, title_prefix="Bước 4: Gom Core Grid thành Cluster"):
     """Vẽ các ô lưới (grid_list) và highlight các core-grid + cluster.
 
     Giả định dữ liệu 2D, dùng min_bin[0/1], max_bin[0/1] để vẽ hình chữ nhật.
@@ -186,6 +523,8 @@ def plot_core_groups(points, grid_list, core_clusters, title_prefix="Step 4: Cor
     ax.set_aspect("equal")
     ax.set_xlabel("Trục X", fontsize=11)
     ax.set_ylabel("Trục Y", fontsize=11)
+    ax.set_title(f'Bước 4: Lọc tất cả các Core Dense Grid',
+                 fontsize=13, fontweight='bold')
 
     # Legend giải thích core-grid / non-core grid và điểm dữ liệu
     legend_elements = [
@@ -294,4 +633,4 @@ if __name__ == "__main__":
         print(f"  Cluster {idx}: {len(cluster)} core-grids")
 
     plot_core_groups(points, grid_list, core_clusters,
-                     title_prefix="Step 4 Demo: Core grids & core-clusters từ Step 2")
+                     title_prefix="Bước 4: Gom Core Grid thành Cluster")

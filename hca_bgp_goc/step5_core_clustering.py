@@ -261,7 +261,7 @@ def print_kmeans_formulas_detail(points, init_centroids, max_iter=100, tol=1e-4)
         print("\n   📌 BƯỚC 2A: GÁN MỖI ĐIỂM VÀO CỤM CÓ TÂM GẦN NHẤT")
         
         changed = False
-        for i in range(min(n_samples, 5)):  # Chỉ in chi tiết 5 điểm đầu
+        for i in range(n_samples):  # In chi tiết tất cả các điểm
             p = data[i]
             print(f"\n   🔹 Điểm {i}: p = ({p[0]:.4f}, {p[1]:.4f})")
             
@@ -285,18 +285,6 @@ def print_kmeans_formulas_detail(points, init_centroids, max_iter=100, tol=1e-4)
             if labels[i] != best_label:
                 labels[i] = best_label
                 changed = True
-        
-        # Gán tất cả các điểm còn lại (không in chi tiết)
-        for i in range(5, n_samples):
-            p = data[i]
-            dists = [euclid(p, centroids[j]) for j in range(k)]
-            best_label = int(np.argmin(dists))
-            if labels[i] != best_label:
-                labels[i] = best_label
-                changed = True
-        
-        if n_samples > 5:
-            print(f"\n   ... (đã tính tương tự cho {n_samples - 5} điểm còn lại)")
         
         # ========================
         # BƯỚC 2B: CẬP NHẬT TÂM CỤM
@@ -370,10 +358,10 @@ def print_kmeans_formulas_detail(points, init_centroids, max_iter=100, tol=1e-4)
                 d = euclid(data[i], data[j])
                 D[i, j] = D[j, i] = d
         
-        print("\n▶ TÍNH CHI TIẾT CHO VÀI ĐIỂM ĐẦU:")
+        print("\n▶ TÍNH CHI TIẾT CHO TẤT CẢ CÁC ĐIỂM:")
         s_values = np.zeros(n_samples)
         
-        for i in range(min(3, n_samples)):
+        for i in range(n_samples):  # Tính cho tất cả các điểm
             ci = labels[i]
             print(f"\n   🔹 Điểm {i}: p = ({data[i][0]:.4f}, {data[i][1]:.4f}), Cluster = {ci}")
             
@@ -412,25 +400,6 @@ def print_kmeans_formulas_detail(points, init_centroids, max_iter=100, tol=1e-4)
             print(f"      s({i}) = ({b_i:.6f} - {a_i:.6f}) / max({a_i:.6f}, {b_i:.6f})")
             print(f"           = {b_i - a_i:.6f} / {max(a_i, b_i):.6f}")
             print(f"           = {s_i:.6f}")
-        
-        # Tính cho tất cả điểm còn lại
-        for i in range(3, n_samples):
-            ci = labels[i]
-            same = (labels == ci)
-            same[i] = False
-            a_i = float(np.mean(D[i, same])) if np.any(same) else 0
-            
-            b_i = float("inf")
-            for c in unique_clusters:
-                if c == ci:
-                    continue
-                other = (labels == c)
-                if np.any(other):
-                    d_c = float(np.mean(D[i, other]))
-                    if d_c < b_i:
-                        b_i = d_c
-            
-            s_values[i] = (b_i - a_i) / max(a_i, b_i) if max(a_i, b_i) > 0 else 0
         
         sil_mean = float(np.mean(s_values))
         print(f"\n▶ SILHOUETTE TRUNG BÌNH TOÀN BỘ:")
@@ -938,7 +907,7 @@ def step5_cluster_full(points, grid_list, visualize=True, target_k=None):
     print(f"\n[Step 6] Davies-Bouldin index (toàn hệ thống) = {db_index:.6f}")
 
     try:
-        with open("silhouette_results_DataSetGoc.txt", "w", encoding="utf-8") as f:
+        with open("silhouette_results_demo.txt", "w", encoding="utf-8") as f:
             f.write("[Step 6] CHỈ SỐ SILHOUETTE\n")
             f.write(f"Silhouette trung bình toàn bộ: {sil_mean:.6f}\n\n")
 
@@ -954,9 +923,9 @@ def step5_cluster_full(points, grid_list, visualize=True, target_k=None):
                 )
             # Write Davies-Bouldin index
             f.write(f"\nDavies-Bouldin = {db_index:.6f}\n")
-        print("\n[Step 6] Đã ghi kết quả Silhouette ra file silhouette_results_DataSetGoc.txt")
+        print("\n[Step 6] Đã ghi kết quả Silhouette ra file silhouette_results_demo.txt")
     except Exception as e:
-        print(f"\n[Step 6] Lỗi khi ghi file silhouette_results_caitien_DataSetGoc.txt: {e}")
+        print(f"\n[Step 6] Lỗi khi ghi file silhouette_results_caitien_demo.txt: {e}")
 
     # 5) Vẽ kết quả cuối cùng nếu cần (dựa trên format Step 2/3)
     if visualize:
@@ -1081,10 +1050,10 @@ if __name__ == "__main__":
 
     # Ghi ra file TXT chỉ chứa 2 chỉ số: Time(s) toàn bộ hệ thống và Silhouette trung bình
     try:
-        with open("time_silhouette_results_DataSetGoc.txt", "w", encoding="utf-8") as f:
+        with open("time_silhouette_results_demo.txt", "w", encoding="utf-8") as f:
             f.write("Time(s)_full_system = {:.6f}\n".format(total_runtime))
             f.write("Silhouette_mean = {:.6f}\n".format(sil_mean))
             f.write("Davies_Bouldin = {:.6f}\n".format(db_index))
-        print("[Output] Đã ghi 2 chỉ số Time(s) và Silhouette vào file time_silhouette_result_DataSetGoc.txt")
+        print("[Output] Đã ghi 2 chỉ số Time(s) và Silhouette vào file time_silhouette_result_demo.txt")
     except Exception as e:
-        print(f"[Output] Lỗi khi ghi file time_silhouette_result_DataSetGoc.txt: {e}")
+        print(f"[Output] Lỗi khi ghi file time_silhouette_result_demo.txt: {e}")

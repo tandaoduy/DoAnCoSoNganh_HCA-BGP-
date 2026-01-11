@@ -685,7 +685,7 @@ if __name__ == "__main__":
         )
 
     cluster_labels, core_clusters, final_centroids, sil_mean, db_index, step56_time = step5_cluster_full(
-        points, grid_list_step5, visualize=False, target_k=None
+        points, grid_list_step5, visualize=True, target_k=None
     )
 
     print("\n===== KẾT QUẢ STEP 6 (Option B) =====")
