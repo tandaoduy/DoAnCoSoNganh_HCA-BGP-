@@ -1,0 +1,3 @@
+Time(s)_full_system = 19.483037
+Silhouette_mean = 0.472548
+Davies_Bouldin = 0.731607

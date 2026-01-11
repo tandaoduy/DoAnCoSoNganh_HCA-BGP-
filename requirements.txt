@@ -1,0 +1,12 @@
+#numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+opencv-python
+requests
+beautifulsoup4
+flask
+django
+pillow
+openpyxl

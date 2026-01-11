@@ -1,0 +1,98 @@
+[Step 6] CHỈ SỐ SILHOUETTE
+Silhouette trung bình toàn bộ: 0.486507
+
+Silhouette trung bình theo từng cluster:
+- Cluster 0: silhouette_mean=0.745585, so_diem=3
+- Cluster 1: silhouette_mean=0.318780, so_diem=112
+- Cluster 2: silhouette_mean=0.526818, so_diem=14
+- Cluster 3: silhouette_mean=0.452744, so_diem=168
+- Cluster 4: silhouette_mean=0.392687, so_diem=142
+- Cluster 5: silhouette_mean=0.163234, so_diem=26
+- Cluster 6: silhouette_mean=0.193875, so_diem=4
+- Cluster 7: silhouette_mean=0.703457, so_diem=10
+- Cluster 8: silhouette_mean=0.121881, so_diem=7
+- Cluster 9: silhouette_mean=0.483803, so_diem=6
+- Cluster 10: silhouette_mean=0.320313, so_diem=6
+- Cluster 11: silhouette_mean=0.554390, so_diem=19
+- Cluster 12: silhouette_mean=0.722110, so_diem=12
+- Cluster 13: silhouette_mean=0.288574, so_diem=6
+- Cluster 14: silhouette_mean=0.522550, so_diem=19
+- Cluster 15: silhouette_mean=0.342513, so_diem=58
+- Cluster 16: silhouette_mean=0.663675, so_diem=67
+- Cluster 17: silhouette_mean=0.555453, so_diem=6
+- Cluster 18: silhouette_mean=0.681972, so_diem=23
+- Cluster 19: silhouette_mean=0.485948, so_diem=24
+- Cluster 20: silhouette_mean=0.497596, so_diem=259
+- Cluster 21: silhouette_mean=0.493189, so_diem=30
+- Cluster 22: silhouette_mean=0.364164, so_diem=11
+- Cluster 23: silhouette_mean=0.502619, so_diem=8
+- Cluster 24: silhouette_mean=0.604206, so_diem=15
+- Cluster 25: silhouette_mean=0.379544, so_diem=13
+- Cluster 26: silhouette_mean=0.765824, so_diem=31
+- Cluster 27: silhouette_mean=0.804097, so_diem=10
+- Cluster 28: silhouette_mean=0.566419, so_diem=12
+- Cluster 29: silhouette_mean=0.585948, so_diem=8
+- Cluster 30: silhouette_mean=0.577032, so_diem=6
+- Cluster 31: silhouette_mean=0.459938, so_diem=13
+- Cluster 32: silhouette_mean=0.638884, so_diem=14
+- Cluster 33: silhouette_mean=0.436506, so_diem=12
+- Cluster 34: silhouette_mean=0.470685, so_diem=9
+- Cluster 35: silhouette_mean=0.575575, so_diem=34
+- Cluster 36: silhouette_mean=0.472619, so_diem=20
+- Cluster 37: silhouette_mean=0.365706, so_diem=41
+- Cluster 38: silhouette_mean=0.445794, so_diem=4
+- Cluster 39: silhouette_mean=0.606636, so_diem=8
+- Cluster 40: silhouette_mean=0.407013, so_diem=13
+- Cluster 41: silhouette_mean=0.507603, so_diem=20
+- Cluster 42: silhouette_mean=0.723603, so_diem=30
+- Cluster 43: silhouette_mean=0.470736, so_diem=10
+- Cluster 44: silhouette_mean=0.577489, so_diem=21
+- Cluster 45: silhouette_mean=0.616673, so_diem=78
+- Cluster 46: silhouette_mean=0.431965, so_diem=85
+- Cluster 47: silhouette_mean=0.543799, so_diem=27
+- Cluster 48: silhouette_mean=0.426226, so_diem=6
+- Cluster 49: silhouette_mean=0.601773, so_diem=3
+- Cluster 50: silhouette_mean=0.632224, so_diem=6
+- Cluster 51: silhouette_mean=0.355144, so_diem=12
+- Cluster 52: silhouette_mean=0.416017, so_diem=5
+- Cluster 53: silhouette_mean=0.814188, so_diem=12
+- Cluster 54: silhouette_mean=0.495273, so_diem=11
+- Cluster 55: silhouette_mean=0.530199, so_diem=37
+- Cluster 56: silhouette_mean=0.462268, so_diem=13
+- Cluster 57: silhouette_mean=0.000000, so_diem=1
+- Cluster 58: silhouette_mean=0.686170, so_diem=22
+- Cluster 59: silhouette_mean=0.521029, so_diem=47
+- Cluster 60: silhouette_mean=0.487760, so_diem=51
+- Cluster 61: silhouette_mean=0.632390, so_diem=15
+- Cluster 62: silhouette_mean=0.577379, so_diem=14
+- Cluster 63: silhouette_mean=0.515936, so_diem=121
+- Cluster 64: silhouette_mean=0.504410, so_diem=8
+- Cluster 65: silhouette_mean=0.404578, so_diem=8
+- Cluster 66: silhouette_mean=0.529982, so_diem=21
+- Cluster 67: silhouette_mean=0.250669, so_diem=127
+- Cluster 68: silhouette_mean=0.492040, so_diem=86
+- Cluster 69: silhouette_mean=0.489743, so_diem=174
+- Cluster 70: silhouette_mean=0.555581, so_diem=32
+- Cluster 71: silhouette_mean=0.546644, so_diem=61
+- Cluster 72: silhouette_mean=0.565618, so_diem=16
+- Cluster 73: silhouette_mean=0.558602, so_diem=6
+- Cluster 74: silhouette_mean=0.614926, so_diem=15
+- Cluster 75: silhouette_mean=0.702461, so_diem=5
+- Cluster 76: silhouette_mean=0.252748, so_diem=9
+- Cluster 77: silhouette_mean=0.638506, so_diem=5
+- Cluster 78: silhouette_mean=0.726829, so_diem=11
+- Cluster 79: silhouette_mean=0.618006, so_diem=29
+
+Top các điểm có Silhouette thấp nhất (khó phân cụm):
++ Diem 459: x=584965.717900, y=1111408.593000, cluster=5, silhouette=-0.265540
++ Diem 605: x=539279.206500, y=1126720.646000, cluster=8, silhouette=-0.255180
++ Diem 456: x=584952.161000, y=1111437.421000, cluster=5, silhouette=-0.201532
++ Diem 497: x=574059.688200, y=1117031.919000, cluster=6, silhouette=-0.144547
++ Diem 1350: x=587658.856000, y=1105970.702000, cluster=13, silhouette=-0.127635
++ Diem 2224: x=584575.660400, y=1111445.646000, cluster=5, silhouette=-0.118402
++ Diem 455: x=584991.337200, y=1111471.420000, cluster=5, silhouette=-0.106068
++ Diem 445: x=585009.693500, y=1111474.868000, cluster=5, silhouette=-0.091694
++ Diem 2496: x=586004.096600, y=1110005.105000, cluster=67, silhouette=-0.089672
++ Diem 1326: x=582190.226300, y=1105303.175000, cluster=54, silhouette=-0.076136
+
+Davies-Bouldin = 0.641648

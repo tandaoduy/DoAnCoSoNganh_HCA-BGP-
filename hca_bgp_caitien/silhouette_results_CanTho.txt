@@ -1,0 +1,24 @@
+[Step 6] CHỈ SỐ SILHOUETTE
+Silhouette trung bình toàn bộ: 0.338734
+
+Silhouette trung bình theo từng cluster:
+- Cluster 0: silhouette_mean=0.446984, so_diem=46
+- Cluster 1: silhouette_mean=0.448783, so_diem=88
+- Cluster 2: silhouette_mean=0.626318, so_diem=78
+- Cluster 3: silhouette_mean=0.171078, so_diem=189
+- Cluster 4: silhouette_mean=0.386604, so_diem=791
+- Cluster 5: silhouette_mean=0.307170, so_diem=1371
+
+Top các điểm có Silhouette thấp nhất (khó phân cụm):
++ Diem 2043: x=581664.301300, y=1108137.209000, cluster=3, silhouette=-0.268096
++ Diem 1822: x=582397.442300, y=1106708.101000, cluster=3, silhouette=-0.228445
++ Diem 1821: x=582377.007000, y=1106688.599000, cluster=3, silhouette=-0.216705
++ Diem 181: x=582353.585800, y=1106666.247000, cluster=3, silhouette=-0.203207
++ Diem 1088: x=581496.995800, y=1107987.255000, cluster=3, silhouette=-0.194266
++ Diem 2077: x=581394.832200, y=1107884.154000, cluster=3, silhouette=-0.144578
++ Diem 1377: x=583372.433100, y=1109838.996000, cluster=5, silhouette=-0.117301
++ Diem 1344: x=582191.417500, y=1106519.534000, cluster=3, silhouette=-0.109523
++ Diem 2078: x=581300.036500, y=1107788.489000, cluster=3, silhouette=-0.096727
++ Diem 1028: x=583424.367100, y=1109889.983000, cluster=5, silhouette=-0.090306
+
+Davies-Bouldin = 0.856572
