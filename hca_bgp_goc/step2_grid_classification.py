@@ -3,12 +3,13 @@ HCA-BGP Step 2: Grid Classification (Static Grid Only)
 Input: Kết quả từ Step 1 (M, R) và dữ liệu điểm
 Output: Các lưới được phân loại (core, dense, sparse, empty)
 Chú ý: Chỉ phân loại lưới MxM tĩnh, CHƯA chia đệ quy
-
-Note:
-    Variable names like M, R, K, Dj, Cj, Gj, pj follow mathematical notation
-    from the original HCA-BGP paper and are intentionally not snake_case.
 """
-# pylint: disable=invalid-name
+"""Step 2: static grid construction and grid classification helpers.
+
+Provides routines to build a static MxM grid, classify cells (core/dense/...
+and plotting utilities used by the pipeline.
+"""
+
 import math
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -18,6 +19,8 @@ from grid_common import (
     compute_pj_for_cell,
     compute_Dj_for_cell,
 )
+
+
 # =============================
 # LỚP BIỂU DIỄN Ô LƯỚI (GridCell)
 # =============================
@@ -85,6 +88,10 @@ class GridCell:
         )
 
     def compute_Dj(self):
+        """Tính Dj - độ phân tán điểm trong ô (Equation 7).
+
+        Dj = std_distance / diagonal
+        """
         return compute_Dj_for_cell(
             self.points,
             self.xmin,
@@ -94,8 +101,49 @@ class GridCell:
         )
 
 
+# =============================
+# HÀM THUẬN TIỆN BAO QUANH GridCell
+# =============================
 def create_grid_cell(ix, iy, xmin, xmax, ymin, ymax):
+    """Tạo một ô lưới GridCell (thay cho dict phiên bản cũ)."""
     return GridCell(ix, iy, xmin, xmax, ymin, ymax)
+
+
+def gridcell_add_point(cell, p):
+    """Thêm điểm vào ô (hàm bao quanh GridCell.add_point)."""
+    cell.add_point(p)
+
+
+def gridcell_count(cell):
+    """Đếm số điểm trong ô (hàm bao quanh GridCell.count)."""
+    return cell.count()
+
+
+def gridcell_center(cell):
+    """Tâm hình học của ô lưới (Gj - Equation 5)."""
+    return cell.center()
+
+
+def gridcell_centroid(cell):
+    """Trọng tâm các điểm trong ô (Cj - Equation 4)."""
+    return cell.centroid()
+
+
+def gridcell_diagonal_length(cell):
+    """Chiều dài đường chéo của ô lưới, dùng chung cho các phép tính chuẩn hóa."""
+    return cell.diagonal_length()
+
+
+def gridcell_compute_pj(cell):
+    """Tính pj - độ lệch giữa tâm lưới và trọng tâm điểm (Equation 6)."""
+    return cell.compute_pj()
+
+
+def gridcell_compute_Dj(cell):
+    """Tính Dj - độ phân tán điểm trong ô (Equation 7)."""
+    return cell.compute_Dj()
+
+
 # =============================
 # XÂY DỰNG LƯỚI MxM
 # =============================
@@ -142,7 +190,7 @@ def build_grid(points, M):
         x, y = p
         ix = int(min(M - 1, max(0, math.floor((x - xmin) / (xmax - xmin) * M))))
         iy = int(min(M - 1, max(0, math.floor((y - ymin) / (ymax - ymin) * M))))
-        grid[(ix, iy)].add_point(p)
+        gridcell_add_point(grid[(ix, iy)], p)
 
     return grid, (xmin, xmax, ymin, ymax)
 
@@ -170,8 +218,8 @@ def classify_grids(grid, R, pj_threshold=0.1, Dj_threshold=0.5):
     dense_cells = []
     core_cells = []
 
-    for cell in grid.values():
-        cnt = cell.count()
+    for key, cell in grid.items():
+        cnt = gridcell_count(cell)
 
         # 1. Ô rỗng
         if cnt == 0:
@@ -188,8 +236,8 @@ def classify_grids(grid, R, pj_threshold=0.1, Dj_threshold=0.5):
             continue
 
         # 3. Ô dày đặc - kiểm tra xem có phải core không
-        pj = cell.compute_pj()
-        Dj = cell.compute_Dj()
+        pj = gridcell_compute_pj(cell)
+        Dj = gridcell_compute_Dj(cell)
 
         if pj is not None and Dj is not None:
             if pj < pj_threshold and Dj < Dj_threshold:
@@ -237,11 +285,11 @@ def print_statistics(classified, R):
         print("CHI TIẾT CORE GRIDS")
         print("="*50)
         for i, cell in enumerate(classified['core'][:10], 1):
-            pj = cell.compute_pj()
-            Dj = cell.compute_Dj()
+            pj = gridcell_compute_pj(cell)
+            Dj = gridcell_compute_Dj(cell)
             print(
                 f"Core {i:2d}: Vị trí ({cell.ix}, {cell.iy}) | "
-                f"Số điểm: {cell.count():3d} | "
+                f"Số điểm: {gridcell_count(cell):3d} | "
                 f"pj={pj:.4f} | Dj={Dj:.4f}"
             )
 
@@ -273,8 +321,8 @@ def print_detailed_calculation(grid, R, pj_threshold=0.1, Dj_threshold=0.5):
     for idx, (key, cell) in enumerate(non_empty_cells, 1):
         ix, iy = key
         count = cell.count()
-        cell_points = cell.points
-
+        points = cell.points
+        
         print("\n" + "─"*80)
         print(f"🔷 Ô lưới ({ix}, {iy}) - Lần {idx}")
         print("─"*80)
@@ -288,7 +336,7 @@ def print_detailed_calculation(grid, R, pj_threshold=0.1, Dj_threshold=0.5):
         
         # Liệt kê các điểm trong ô
         print(f"\n▶ DANH SÁCH ĐIỂM TRONG Ô:")
-        for i, p in enumerate(cell_points):
+        for i, p in enumerate(points):
             print(f"   • Điểm {i+1}: ({p[0]:.4f}, {p[1]:.4f})")
         
         # Bước 1: Kiểm tra mật độ
@@ -313,19 +361,19 @@ def print_detailed_calculation(grid, R, pj_threshold=0.1, Dj_threshold=0.5):
         print(f"\n▶ BƯỚC 2: TÍNH TRỌNG TÂM DỮ LIỆU Cj (Equation 4)")
         print(f"   Công thức: Cj = (1/|Mj|) × Σ(xi)")
         
-        sum_x = sum(p[0] for p in cell_points)
-        sum_y = sum(p[1] for p in cell_points)
+        sum_x = sum(p[0] for p in points)
+        sum_y = sum(p[1] for p in points)
         Cx = sum_x / count
         Cy = sum_y / count
-
+        
         print(f"\n   Tính Cx:")
-        x_values = " + ".join([f"{p[0]:.4f}" for p in cell_points])
+        x_values = " + ".join([f"{p[0]:.4f}" for p in points])
         print(f"   Cx = (1/{count}) × ({x_values})")
         print(f"   Cx = (1/{count}) × {sum_x:.4f}")
         print(f"   Cx = {Cx:.4f}")
         
         print(f"\n   Tính Cy:")
-        y_values = " + ".join([f"{p[1]:.4f}" for p in cell_points])
+        y_values = " + ".join([f"{p[1]:.4f}" for p in points])
         print(f"   Cy = (1/{count}) × ({y_values})")
         print(f"   Cy = (1/{count}) × {sum_y:.4f}")
         print(f"   Cy = {Cy:.4f}")
@@ -394,10 +442,10 @@ def print_detailed_calculation(grid, R, pj_threshold=0.1, Dj_threshold=0.5):
         print(f"   Trong đó: STPGj = √[(1/n) × Σ||xi - Cj||²] (độ lệch chuẩn khoảng cách)")
         
         # Tính độ lệch từng điểm đến trọng tâm
-        distances_sq = [(p[0] - Cx)**2 + (p[1] - Cy)**2 for p in cell_points]
+        distances_sq = [(p[0] - Cx)**2 + (p[1] - Cy)**2 for p in points]
         
         print(f"\n   Tính khoảng cách từ mỗi điểm đến Cj:")
-        for i, (p, d_sq) in enumerate(zip(cell_points, distances_sq)):
+        for i, (p, d_sq) in enumerate(zip(points, distances_sq)):
             dist = math.sqrt(d_sq)
             print(f"   • Điểm {i+1} ({p[0]:.4f}, {p[1]:.4f}):")
             print(f"     ||xi - Cj||² = ({p[0]:.4f} - {Cx:.4f})² + ({p[1]:.4f} - {Cy:.4f})²")
@@ -493,7 +541,7 @@ def plot_classification(points, grid, classified, bounds, M, R):
     """Vẽ kết quả phân loại lưới"""
     xmin, xmax, ymin, ymax = bounds
 
-    _, ax = plt.subplots(figsize=(12, 10))
+    fig, ax = plt.subplots(figsize=(12, 10))
 
     # Màu sắc cho từng loại
     colors = {

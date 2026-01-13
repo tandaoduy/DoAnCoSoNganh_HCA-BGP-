@@ -3,12 +3,7 @@
 This module contains legacy functions used to compute grid size M and radius R
 from input point data. The functions are intentionally kept compatible with
 the original pipeline and called by other steps.
-
-Note:
-    Variable names like M, K, R, Umin, Mdg follow mathematical notation from
-    the original HCA-BGP paper and are intentionally not snake_case.
 """
-# pylint: disable=invalid-name
 
 import statistics
 import matplotlib.pyplot as plt
@@ -18,14 +13,7 @@ from utils import load_data_txt
 # ============================================
 # HÀM VẼ LƯỚI STEP 1 (BẢN CŨ - LEGACY)
 # ============================================
-def plot_step1_result_legacy(points, M):
-    """
-    Vẽ lưới M x M lên không gian dữ liệu điểm.
-
-    Args:
-        points: Danh sách các điểm (x, y).
-        M: Kích thước lưới (số ô theo mỗi chiều).
-    """
+def plot_step1_result_legacy(points, M, show_labels=False):
     # Tách danh sách điểm thành hai danh sách riêng:
     #   - x_coords: tất cả hoành độ (x)
     #   - y_coords: tất cả tung độ (y)
@@ -38,7 +26,7 @@ def plot_step1_result_legacy(points, M):
     max_y_value = max(y_coords)
 
     # Tạo figure và axes để vẽ với kích thước 8x8 inch
-    _, axis = plt.subplots(figsize=(8, 8))
+    figure, axis = plt.subplots(figsize=(8, 8))
 
     # Vẽ tất cả các điểm dữ liệu lên đồ thị
     #   - s=80: kích thước marker
@@ -106,6 +94,9 @@ def plot_step1_result_legacy(points, M):
     axis.set_title(f"Bước 1: Vẽ lưới  M={M}")
     plt.show()
 
+
+
+# HÀM TÍNH Mdg(M) (BẢN CŨ - LEGACY)
 def compute_Mdg_legacy(points, M):
     """
     Ý tưởng:
@@ -144,7 +135,7 @@ def compute_Mdg_legacy(points, M):
         for column_index in range(M):
             row_counts.append(0)
         cell_point_counts.append(row_counts)
-    #Chiếu db lên lưới và tính Mdg
+
     # Cho từng điểm (x, y) vào đúng ô trong lưới
     for point in points:
         point_x = point[0]
@@ -185,8 +176,8 @@ def compute_Mdg_legacy(points, M):
         return 0
 
 
-# STEP 1 – ĐÚNG THEO BÀI GỐC
-def step1_compute_original(path, K=3, max_M=500):
+# STEP 1 – ĐÚNG THEO BÀI GỐC (BẢN CŨ - LEGACY)
+def step1_compute_original_legacy(path, K=3, max_M=500):
     """
     Thực hiện Step 1 của thuật toán HCA-BGP đúng theo bài gốc:
 
@@ -221,6 +212,8 @@ def step1_compute_original(path, K=3, max_M=500):
     # =========================================
     # Duyệt M = K, 2K, 3K, ... <= max_M
     # Tại mỗi M, ta tính Mdg(M).
+    # Theo bài báo: "If there exists a value Mi such that Mdg(Mi) < |Umin|,
+    # then set the initial value of M to Mi."
     # → Dừng ngay khi tìm được M đầu tiên thỏa Mdg(M) < |Umin|
     while current_grid_size_M <= max_M:
         current_Mdg_value = compute_Mdg_legacy(points, current_grid_size_M)
@@ -228,12 +221,12 @@ def step1_compute_original(path, K=3, max_M=500):
             f"  M={current_grid_size_M:4d}  \t Mdg={current_Mdg_value:.3f}"
         )
 
-        # Dừng ngay khi Mdg(M) < |Umin|
+        # Theo bài báo: Dừng ngay khi Mdg(M) < |Umin|
         if current_Mdg_value < Umin:
             best_grid_size_M = current_grid_size_M
             best_Mdg_value = current_Mdg_value
             break  # Dừng vòng lặp - đã tìm được M thỏa điều kiện
-
+        
         # Nếu chưa thỏa, lưu lại M hiện tại (fallback nếu không có M nào thỏa)
         if best_Mdg_value is None or current_Mdg_value < best_Mdg_value:
             best_grid_size_M = current_grid_size_M
@@ -265,7 +258,7 @@ def step1_compute_original(path, K=3, max_M=500):
     print(f"R = Mdg/2 = {R_original:.3f}")
 
     # Vẽ lưới với M tối ưu
-    plot_step1_result_legacy(points, best_grid_size_M)
+    plot_step1_result_legacy(points, best_grid_size_M, show_labels=False)
 
     # Trả về kết quả để các step sau sử dụng
     return {
@@ -274,5 +267,14 @@ def step1_compute_original(path, K=3, max_M=500):
         "R": R_for_next_steps,
         "Umin": Umin
     }
+
+
+# Wrapper giữ nguyên tên hàm cũ cho các step sau
+# Mặc định quay lại dùng bản gốc (legacy) để đảm bảo kết quả phân cụm
+# giống bài báo và các file silhouette_results ban đầu.
+def step1_compute_original(path, K=3, max_M=500):
+    return step1_compute_original_legacy(path, K=K, max_M=max_M)
+
+
 if __name__ == "__main__":
-    step1_compute_original("data.txt", K=8, max_M=500)
+    step1_compute_original_legacy("data.txt", K=3, max_M=200)

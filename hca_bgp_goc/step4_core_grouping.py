@@ -40,6 +40,13 @@ def grid_distance(g1, g2, dim):
     return sum(axis_distance(g1, g2, d) for d in range(dim))
 
 
+# ------------------------------------------------------
+# Kiểm tra adjacency theo bài báo: ô kề nhau theo (ix, iy)
+# ------------------------------------------------------
+def are_adjacent(g1, g2):
+    """Hai grid được coi là kề nhau nếu chỉ số ix, iy chênh nhau không quá 1."""
+    return abs(g1["ix"] - g2["ix"]) <= 1 and abs(g1["iy"] - g2["iy"]) <= 1
+
 
 # ------------------------------------------------------
 # Gom các core-grid thành các core-cluster (Step 4)
@@ -435,6 +442,15 @@ def print_adjacency_formulas_detail(grid_list, dim=2):
     
     return clusters
 
+
+# ------------------------------------------------------
+# Tính centroid mỗi core-grid (step 6)
+# ------------------------------------------------------
+def compute_coregrid_centroid(grid):
+    pts = np.array(grid["points"])
+    if len(pts) == 0:
+        return None
+    return np.mean(pts, axis=0)
 
 
 # ------------------------------------------------------
