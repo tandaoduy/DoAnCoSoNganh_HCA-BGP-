@@ -622,7 +622,7 @@ if __name__ == "__main__":
 
     # Step 1
     print("===== STEP 1: Tính M, R =====")
-    step1_result = step1_compute_original(data_path, K=3, max_M=200)
+    step1_result = step1_compute_original(data_path, K=10, max_M=200)
     M = step1_result["M"]
     R = step1_result["R"]
     print(f"[Step 1] M = {M}, R = {R}")

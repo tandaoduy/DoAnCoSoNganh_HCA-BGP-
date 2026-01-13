@@ -199,9 +199,9 @@ def recursive_partitioning(grid, R, max_depth=5):
         pj = current_cell.compute_pj()
         Dj = current_cell.compute_Dj()
 
-        # Ngưỡng core giống Step 2: pj < 0.3 và Dj < 0.7 (nới lỏng để có nhiều core hơn)
-        pj_threshold = 0.3
-        Dj_threshold = 0.7
+        # Ngưỡng core giống Step 2 theo paper gốc: pj < 0.1 và Dj < 0.5
+        pj_threshold = 0.1
+        Dj_threshold = 0.5
 
         if pj is not None and Dj is not None:
             # Điều kiện dừng theo paper:
@@ -210,11 +210,8 @@ def recursive_partitioning(grid, R, max_depth=5):
             # 3. Ô đã đồng nhất (pj < threshold và Dj < threshold - trở thành core)
 
             if current_cell.level >= max_depth:
-                # Đã đạt độ sâu tối đa - nếu có đủ điểm >= R, coi là core
-                if cnt >= R:
-                    current_cell.grid_type = 'core'
-                else:
-                    current_cell.grid_type = 'dense'
+                # Đã đạt độ sâu tối đa - giữ nguyên là dense (giống thuật toán gốc)
+                current_cell.grid_type = 'dense'
                 final_classified_cells.append(current_cell)
             elif cnt < R:
                 # Không đủ điểm để chia tiếp

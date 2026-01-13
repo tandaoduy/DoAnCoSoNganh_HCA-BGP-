@@ -1,9 +1,5 @@
 """Step 3: recursive partitioning of dense grid cells.
-
-Contains functions for splitting dense grid cells recursively and
-visualization helpers used by the pipeline.
 """
-
 import math
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
@@ -12,13 +8,11 @@ from grid_common import (
     compute_pj_for_cell,
     compute_Dj_for_cell,
 )
-
 # =============================
 # CẬP NHẬT GRIDCELL CHO PHÂN CHIA ĐỆ QUY
 # =============================
 class RecursiveGridCell:
     """Ô lưới dùng riêng cho Step 3, tự quản lý hình học và thống kê"""
-
     def __init__(self, ix, iy, xmin, xmax, ymin, ymax, level=1, parent=None, points=None, from_dense_region=False):
         # Thông tin vị trí, hình học
         self.ix = ix
@@ -27,20 +21,16 @@ class RecursiveGridCell:
         self.xmax = xmax
         self.ymin = ymin
         self.ymax = ymax
-
         # Danh sách điểm trong ô
         self.points = list(points) if points is not None else []
-
         # Thông tin phân chia đệ quy
         self.level = level  # Cấp độ phân chia (1 là lưới MxM gốc)
         self.parent = parent  # Ô cha
         self.children = []  # Danh sách 4 ô con (nếu có)
         # Cờ: ô này thuộc vùng đã từng được phân loại là 'dense' ở cấp cha
         self.from_dense_region = from_dense_region
-
         # Mặc định, loại ban đầu là 'unclassified'
         self.grid_type = 'unclassified'
-
     # ====== Các hàm tiện ích tương tự Step 2 ======
     def add_point(self, p):
         self.points.append(p)
@@ -472,9 +462,7 @@ def plot_recursive_classification(points, leaf_cells, bounds, M):
         'core': ('#FFFF00', 1.0),    # vàng kim - nổi bật hơn
         'divided': ('#ffffff', 0.0)  # Bỏ qua ô đã chia
     }
-
     labels_drawn = set()
-
     # Vẽ TẤT CẢ các ô LÁ (leaf cells)
     # Để dense dễ thấy, ta vẽ theo thứ tự: empty/sparse trước, sau đó dense, cuối cùng core
     draw_order = ['empty', 'sparse', 'dense', 'core', 'divided']
@@ -482,14 +470,11 @@ def plot_recursive_classification(points, leaf_cells, bounds, M):
         for cell in leaf_cells:
             if cell.grid_type != grid_type:
                 continue
-
             color, alpha = colors[grid_type]
-
             label = None
             if grid_type not in labels_drawn:
                 label = f"{grid_type.capitalize()} ({len([c for c in leaf_cells if c.grid_type == grid_type])})"
                 labels_drawn.add(grid_type)
-
             rect = patches.Rectangle(
                 (cell.xmin, cell.ymin),
                 cell.xmax - cell.xmin,
@@ -501,23 +486,19 @@ def plot_recursive_classification(points, leaf_cells, bounds, M):
                 label=label
             )
             ax.add_patch(rect)
-
     # Vẽ các điểm dữ liệu
     xs = [p[0] for p in points]
     ys = [p[1] for p in points]
     ax.scatter(xs, ys, c='blue', s=10, zorder=10,
                label=f'Data points ({len(points)})')
-
     # Cài đặt trục: dùng đúng bounds từng trục
     ax.set_xlim(xmin, xmax)
     ax.set_ylim(ymin, ymax)
-
     ax.set_aspect('equal')
     ax.set_xlabel('Trục X', fontsize=11)
     ax.set_ylabel('Trục Y', fontsize=11)
     ax.set_title(f'Bước 3: Chia đệ quy (M={M}x{M})',
                  fontsize=13, fontweight='bold')
-
     # Legend giải thích màu các loại ô và điểm dữ liệu
     ax.legend(
         loc='upper left',
@@ -526,13 +507,11 @@ def plot_recursive_classification(points, leaf_cells, bounds, M):
         fontsize=9,
         framealpha=0.9,
     )
-
     ax.grid(True, alpha=0.2, linestyle='--')
 
     # Chừa lề phải cho legend để tránh cảnh báo tight_layout
     plt.subplots_adjust(right=0.8)
     plt.show()
-
 
 # =============================
 # HÀM CHÍNH STEP 3
@@ -552,22 +531,18 @@ def step3_handle_dense_grids(points, M, R, bounds, visualize=True, max_depth=5, 
     """
     print("Bước 3: Chia đệ quy (XỬ LÝ Ô DENSE)")
     print(f" Đầu vào: M={M}, R={R:.4f}, Số điểm={len(points)}")
-
     # 1. Xây dựng lưới MxM ban đầu với RecursiveGridCell
     grid_initial = build_grid_recursive(points, M, bounds)
-
     # 2. In chi tiết quá trình chia đệ quy (nếu được bật)
     if show_detailed:
         # Tạo lại grid để in chi tiết (vì recursive_partitioning sẽ thay đổi grid)
         grid_for_detail = build_grid_recursive(points, M, bounds)
         print_recursive_partitioning_detail(grid_for_detail, R, max_depth=max_depth)
-    
     # 3. Thực hiện phân chia đệ quy
     print("\n Đang tiến hành phân chia đệ quy các ô 'dense'...")
     print(f"  max_depth = {max_depth}")
     final_classified_cells = recursive_partitioning(grid_initial, R, max_depth=max_depth)
     print(" Phân loại đệ quy hoàn tất.")
-
     # 4. Thống kê kết quả
     classified_results = {
         'empty': [c for c in final_classified_cells if c.grid_type == 'empty'],
@@ -575,27 +550,22 @@ def step3_handle_dense_grids(points, M, R, bounds, visualize=True, max_depth=5, 
         'dense': [c for c in final_classified_cells if c.grid_type == 'dense'],
         'core': [c for c in final_classified_cells if c.grid_type == 'core'],
     }
-
     print("KẾT QUẢ PHÂN LOẠI CUỐI CÙNG (SAU ĐỆ QUY)")
     print(f"📋 Tổng số ô LÁ (leaf cells): {len(final_classified_cells)}")
     print(f"⬜ Empty (leaf):   {len(classified_results['empty']):3d} ô")
     print(f"🔵 Sparse (leaf):  {len(classified_results['sparse']):3d} ô")
     print(f"🟡 Dense (leaf):   {len(classified_results['dense']):3d} ô (không đủ tiêu chí core sau chia)")
     print(f"🟢 Core (leaf):    {len(classified_results['core']):3d} ô")
-
     # 5. Vẽ biểu đồ
     if visualize:
         print(f"\n Đang vẽ biểu đồ kết quả đệ quy...")
         plot_recursive_classification(points, final_classified_cells, bounds, M)
-
     return {
         'final_cells': final_classified_cells,
         'classified_results': classified_results,
         'M': M,
         'R': R
     }
-
-
 # =============================
 # DEMO SỬ DỤNG
 # =============================
@@ -603,7 +573,6 @@ if __name__ == "__main__":
     from step1_compute_M_R import step1_compute_original
     from utils import load_data_txt
     from step2_grid_classification import build_grid, classify_grids, plot_classification
-
     data_path = "data.txt"
 
     # --- CHẠY STEP 1: TÌM M & R ---
@@ -616,13 +585,11 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Lỗi khi chạy Step 1: {e}")
         exit()
-
     print("\n--- HIỂN THỊ KẾT QUẢ STEP 2 (Phân loại tĩnh) ---")
     grid, bounds = build_grid(points, M)
     classified = classify_grids(grid, R)
     plot_classification(points, grid, classified, bounds, M, R)
     # ==================================
-
     # --- CHẠY STEP 3: PHÂN CHIA ĐỆ QUY (với show_detailed=True để in chi tiết) ---
     step3_result = step3_handle_dense_grids(points, M, R, bounds, visualize=True, show_detailed=True)
     print(" STEP 3 HOÀN THÀNH!")

@@ -1,20 +1,41 @@
 [Step 6] CHỈ SỐ SILHOUETTE
-Silhouette trung bình toàn bộ: 0.639976
+Silhouette trung bình toàn bộ: 0.513809
 
 Silhouette trung bình theo từng cluster:
-- Cluster 0: silhouette_mean=0.888160, so_diem=7
-- Cluster 1: silhouette_mean=0.506339, so_diem=13
+- Cluster 0: silhouette_mean=0.578883, so_diem=432
+- Cluster 1: silhouette_mean=0.684451, so_diem=12
+- Cluster 2: silhouette_mean=0.577304, so_diem=39
+- Cluster 3: silhouette_mean=0.577290, so_diem=46
+- Cluster 4: silhouette_mean=0.571323, so_diem=62
+- Cluster 5: silhouette_mean=0.500852, so_diem=9
+- Cluster 6: silhouette_mean=0.699592, so_diem=60
+- Cluster 7: silhouette_mean=0.472548, so_diem=69
+- Cluster 8: silhouette_mean=0.209074, so_diem=140
+- Cluster 9: silhouette_mean=0.643116, so_diem=55
+- Cluster 10: silhouette_mean=0.791560, so_diem=134
+- Cluster 11: silhouette_mean=0.697338, so_diem=59
+- Cluster 12: silhouette_mean=0.468375, so_diem=123
+- Cluster 13: silhouette_mean=0.713758, so_diem=64
+- Cluster 14: silhouette_mean=0.421667, so_diem=464
+- Cluster 15: silhouette_mean=0.495138, so_diem=484
+- Cluster 16: silhouette_mean=0.547303, so_diem=6
+- Cluster 17: silhouette_mean=0.609075, so_diem=113
+- Cluster 18: silhouette_mean=0.101953, so_diem=34
+- Cluster 19: silhouette_mean=0.442998, so_diem=137
+- Cluster 20: silhouette_mean=0.313188, so_diem=41
+- Cluster 21: silhouette_mean=0.546878, so_diem=96
+- Cluster 22: silhouette_mean=0.616616, so_diem=25
 
 Top các điểm có Silhouette thấp nhất (khó phân cụm):
-+ Diem 7: x=10.000000, y=10.000000, cluster=1, silhouette=0.374075
-+ Diem 9: x=10.000000, y=11.000000, cluster=1, silhouette=0.391276
-+ Diem 13: x=11.000000, y=12.000000, cluster=1, silhouette=0.451250
-+ Diem 8: x=11.000000, y=10.000000, cluster=1, silhouette=0.467117
-+ Diem 10: x=11.000000, y=11.000000, cluster=1, silhouette=0.474732
-+ Diem 12: x=12.000000, y=11.000000, cluster=1, silhouette=0.517921
-+ Diem 11: x=12.000000, y=10.000000, cluster=1, silhouette=0.518397
-+ Diem 14: x=18.000000, y=2.000000, cluster=1, silhouette=0.532384
-+ Diem 15: x=19.000000, y=2.000000, cluster=1, silhouette=0.537697
-+ Diem 16: x=18.000000, y=3.000000, cluster=1, silhouette=0.570251
++ Diem 537: x=703368.921000, y=1211844.208000, cluster=8, silhouette=-0.196318
++ Diem 3: x=703377.044400, y=1211841.428000, cluster=8, silhouette=-0.190261
++ Diem 4: x=703383.076100, y=1211839.363000, cluster=8, silhouette=-0.185777
++ Diem 1175: x=703395.240700, y=1211835.200000, cluster=8, silhouette=-0.176755
++ Diem 1052: x=703412.073900, y=1211818.328000, cluster=8, silhouette=-0.162275
++ Diem 804: x=708966.311500, y=1213014.104000, cluster=18, silhouette=-0.160910
++ Diem 1194: x=703424.007700, y=1211814.216000, cluster=8, silhouette=-0.153375
++ Diem 188: x=709006.265400, y=1213008.092000, cluster=18, silhouette=-0.148710
++ Diem 204: x=703476.826300, y=1211807.325000, cluster=8, silhouette=-0.115653
++ Diem 192: x=703491.273100, y=1211791.037000, cluster=8, silhouette=-0.102629
 
-Davies-Bouldin = 0.511113
+Davies-Bouldin = 0.637678
