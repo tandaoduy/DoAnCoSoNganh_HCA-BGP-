@@ -238,7 +238,7 @@ def recursive_partitioning(grid, R, max_depth=5):
 # =============================
 # IN CHI TIẾT QUÁ TRÌNH CHIA ĐỆ QUY
 # =============================
-def print_recursive_partitioning_detail(grid, R, max_depth=5, pj_threshold=0.5, Dj_threshold=0.8):
+def print_recursive_partitioning_detail(grid, R, max_depth=5, pj_threshold=0.1, Dj_threshold=0.5):
     """
     In chi tiết từng bước của quá trình chia lưới đệ quy.
     Hiển thị cách tính Cj, Gj, pj, Dj và quyết định chia/dừng.

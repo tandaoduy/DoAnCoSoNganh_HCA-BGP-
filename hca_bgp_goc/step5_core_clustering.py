@@ -961,7 +961,7 @@ if __name__ == "__main__":
 
     # 1) Step 1: tìm M, R
     print("===== STEP 1: Tính M, R =====")
-    step1_result = step1_compute_original(data_path, K=10, max_M=200)
+    step1_result = step1_compute_original(data_path, K=3, max_M=200)
     M = step1_result["M"]
     R = step1_result["R"]
     print(f"[Step 1] M = {M}, R = {R}")
@@ -1012,9 +1012,6 @@ if __name__ == "__main__":
     core_clusters_step4 = build_core_clusters(grid_list_step4, dim=2)
     print(f"[Step 4] Số core-grids trên lưới tĩnh: {sum(g['is_core'] for g in grid_list_step4)}")
     print(f"[Step 4] Số core-cluster (Step 4): {len(core_clusters_step4)}")
-    if SHOW_PLOTS:
-        plot_core_groups(points, grid_list_step4, core_clusters_step4,
-                         title_prefix="Bước 4: Gom Core Grid thành Cluster")
 
     # 5) Step 5+6: Gom core-grids từ lưới đệ quy Step 3 + MPNN + K-means toàn bộ điểm
     print("\n===== STEP 5+6: MPNN merge + K-means toàn bộ điểm =====")
@@ -1029,6 +1026,16 @@ if __name__ == "__main__":
                 "is_core": is_core,
             }
         )
+
+    # Vẽ Step 4 dùng grid_list_step5 (lưới sau chia đệ quy) để phản ánh đúng Core Grid
+    core_clusters_step5 = build_core_clusters(grid_list_step5, dim=2)
+    print(f"[Step 5] Số core-grids sau chia đệ quy: {sum(g['is_core'] for g in grid_list_step5)}")
+    print(f"[Step 5] Số core-cluster (Step 5): {len(core_clusters_step5)}")
+    if SHOW_PLOTS:
+        plot_core_groups(points, grid_list_step5, core_clusters_step5,
+                         title_prefix="Bước 4: Gom Core Grid thành Cluster")
+
+
 
     cluster_labels, core_clusters, final_centroids, sil_mean, db_index, step56_time = step5_cluster_full(
         points, grid_list_step5, visualize=SHOW_PLOTS

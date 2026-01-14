@@ -1,6 +1,6 @@
 import random
 
-def generate_large_data(filename="data.txt", n=100, xmin=1, xmax=20):
+def generate_large_data(filename="data.txt", n=100, xmin=1, xmax=10):
     with open(filename, "w") as f:
         f.write("PoiID\tNEAR_X\tNEAR_Y\n")
         for i in range(1, n+1):
